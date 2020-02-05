@@ -63,7 +63,8 @@ public class RNZipArchiveModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void unzip(final String zipFilePath, final String destDirectory, final String charset, final Promise promise) {
+  public void unzip(final String zipFilePath, final String destDirectory, final Promise promise) {
+    final String charset = "UTF-8";
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -86,7 +87,7 @@ public class RNZipArchiveModule extends ReactContextBaseJavaModule {
         try {
           // Find the total uncompressed size of every file in the zip, so we can
           // get an accurate progress measurement
-          final long totalUncompressedBytes = getUncompressedSize(zipFilePath);
+          final long totalUncompressedBytes = getUncompressedSize(zipFilePath, charset);
 
           File destDir = new File(destDirectory);
           if (!destDir.exists()) {
@@ -324,9 +325,9 @@ public class RNZipArchiveModule extends ReactContextBaseJavaModule {
   }
 
   private void ensureZipPathSafety(final File fout, final String destDirectory) throws Exception {
-    String canonicalPath = fout.getCanonicalPath();
-    if (!canonicalPath.startsWith(destDirectory)) {
-      throw new SecurityException(String.format("Found Zip Path Traversal Vulnerability with %s", canonicalPath));
+    String absolutePath = fout.getAbsolutePath();
+    if (!absolutePath.startsWith(destDirectory)) {
+      throw new SecurityException(String.format("Found Zip Path Traversal Vulnerability with %s", absolutePath));
     }
   }
 
